@@ -393,5 +393,15 @@
     "log in": "iniciar sesión",
     "A reset link will be sent if the account exists.": "Se enviará un enlace de restablecimiento si la cuenta existe.",
     "Please enter your new password below": "Por favor ingrese su nueva contraseña a continuación",
-    "Reset password": "Cambiar contraseña"
+    "Reset password": "Cambiar contraseña",
+    "Manage your profile and account settings": "Administra tu perfil y la configuración de tu cuenta",
+    "Delete account": "Borrar cuenta",
+    "Delete your account and all of its resources": "Borrar tu cuenta y todos sus recursos",
+    "Update your profile data": "Actualizar tus datos de perfil",
+    "Update password": "Actualizar contraseña",
+    "Ensure your account is using a long, random password to stay secure": "Asegúrese que su cuenta esté usando una contraseña larga y aleatoria para mantenerse seguro",
+    "Current password": "Contraseña actual",
+    "New password": "Contraseña nueva",
+    "Are you sure you want to delete your account?": "¿Está seguro que desea eliminar su cuenta?",
+    "Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.": "Una vez que se elimine su cuenta, todos sus recursos y datos se eliminarán de forma permanente. Ingrese su contraseña para confirmar que desea eliminar su cuenta de forma permanente."
 }
