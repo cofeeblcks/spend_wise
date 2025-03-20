@@ -383,5 +383,15 @@
     "Log in to your account": "Inicia sesión en tu cuenta",
     "Enter your email and password below to log in": "Ingrese su correo electrónica y contraseña para iniciar sesión",
     "Don't have an account?": "No tienes una cuenta?",
-    "Sign up": "Registrarse"
+    "Sign up": "Registrarse",
+    "Create an account": "Crear una cuenta",
+    "Enter your details below to create your account": "Ingrese los datos a continuación para crear su cuenta",
+    "Forgot password": "Recordar contraseña",
+    "Enter your email to receive a password reset link": "Ingrese su correo electrónico para recibir un enlace de reestablecimiento",
+    "Email password reset link": "Enviar enlace al correo electrónico",
+    "Or, return to": "O, regresa atras a",
+    "log in": "iniciar sesión",
+    "A reset link will be sent if the account exists.": "Se enviará un enlace de restablecimiento si la cuenta existe.",
+    "Please enter your new password below": "Por favor ingrese su nueva contraseña a continuación",
+    "Reset password": "Cambiar contraseña"
 }

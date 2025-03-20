@@ -54,7 +54,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             required
             autofocus
             autocomplete="first_name"
-            :placeholder="__('First name')"
+            :placeholder="__('First Name')"
         />
 
         <flux:input
@@ -64,7 +64,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             required
             autofocus
             autocomplete="last_name"
-            :placeholder="__('Last name')"
+            :placeholder="__('Last Name')"
         />
 
         <!-- Email Address -->
@@ -103,7 +103,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             type="password"
             required
             autocomplete="new-password"
-            :placeholder="__('Confirm password')"
+            :placeholder="__('Confirm Password')"
         />
 
         <div class="flex items-center justify-end">
