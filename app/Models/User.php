@@ -39,8 +39,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected $attributes = [
-        'full_name' => '',
+    protected $appends = [
+        'full_name',
     ];
 
     /**
