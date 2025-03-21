@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Settings;
 
-use App\Actions\TemplateExpenses\CreateTemplateExpense;
-use App\Actions\TemplateExpenses\DeleteTemplateExpense;
-use App\Actions\TemplateExpenses\TemplateExpenseFinder;
-use App\Actions\TemplateExpenses\TemplateExpensesList;
-use App\Actions\TemplateExpenses\UpdateTemplateExpense;
+use App\Actions\Settings\Categories\CreateCategory;
+use App\Actions\Settings\Categories\DeleteCategory;
+use App\Actions\Settings\Categories\CategoryFinder;
+use App\Actions\Settings\Categories\CategoriesList;
+use App\Actions\Settings\Categories\UpdateCategory;
 use App\Traits\ToastNotifications;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
-class TemplateExpensesComponent extends Component
+class CategoriesComponent extends Component
 {
     use ToastNotifications;
 
-    public bool $showModalExpense = false;
-    public bool $showModalDeleteExpense = false;
-    public bool $createTemplateExpense = true;
+    public bool $showModalCreateOrEdit = false;
+    public bool $showModalDelete = false;
+    public bool $createRegister = true;
 
     public int $id;
     public string $name;
@@ -29,15 +29,19 @@ class TemplateExpensesComponent extends Component
 
     public array $breadcumbs = [
         [
-            'name' => 'Gastos',
-            'route' => 'expenses'
+            'name' => 'Ajustes',
+            'route' => null
+        ],
+        [
+            'name' => 'Categorías',
+            'route' => 'settings.categories'
         ]
     ];
 
     public function render()
     {
-        return view('livewire.template-expenses-component', [
-            'templateExpenses' => $this->getTemplateExpenses(),
+        return view('livewire.settings.categories-component', [
+            'categories' => $this->getCategories(),
         ]);
     }
 
@@ -66,12 +70,12 @@ class TemplateExpensesComponent extends Component
         $this->resetErrorBag();
     }
 
-    private function getTemplateExpenses(): Collection
+    private function getCategories(): Collection
     {
-        $response = (new TemplateExpensesList())->execute();
+        $response = (new CategoriesList())->execute();
 
         if ($response['success']) {
-            return collect($response['templateExpenses']);
+            return collect($response['categories']);
         }
 
         return collect();
@@ -83,14 +87,14 @@ class TemplateExpensesComponent extends Component
             'id',
             'name',
             'basicData',
-            'createTemplateExpense',
+            'createRegister',
         ]);
     }
 
     public function create(): void
     {
         $this->resetFields();
-        $this->showModalExpense = true;
+        $this->showModalCreateOrEdit = true;
     }
 
     public function store(): void
@@ -101,7 +105,7 @@ class TemplateExpensesComponent extends Component
             throw $th;
         }
 
-        $response = (new CreateTemplateExpense())->execute($this->basicData);
+        $response = (new CreateCategory())->execute($this->basicData);
 
         if ($response['success']) {
             $this->showSuccess('Registro de plantilla', $response['message'], 5000);
@@ -110,21 +114,21 @@ class TemplateExpensesComponent extends Component
             exit;
         }
 
-        $this->showModalExpense = false;
+        $this->showModalCreateOrEdit = false;
     }
 
     public function edit(int $id):void
     {
-        $templateExpense = (new TemplateExpenseFinder())->execute($id);
+        $category = (new CategoryFinder())->execute($id);
 
         $this->basicData = [
-            'name' => $templateExpense->name,
-            'description' => $templateExpense->description
+            'name' => $category->name,
+            'description' => $category->description
         ];
 
         $this->id = $id;
-        $this->createTemplateExpense = false;
-        $this->showModalExpense = true;
+        $this->createRegister = false;
+        $this->showModalCreateOrEdit = true;
     }
 
     public function update(): void
@@ -135,7 +139,7 @@ class TemplateExpensesComponent extends Component
             throw $th;
         }
 
-        $response = (new UpdateTemplateExpense())->execute($this->id, $this->basicData);
+        $response = (new UpdateCategory())->execute($this->id, $this->basicData);
 
         if ($response['success']) {
             $this->showSuccess('Actualización de plantilla', $response['message'], 5000);
@@ -144,21 +148,21 @@ class TemplateExpensesComponent extends Component
             exit;
         }
         $this->resetFields();
-        $this->showModalExpense = false;
+        $this->showModalCreateOrEdit = false;
     }
 
     public function delete(int $id):void
     {
-        $templateExpense = (new TemplateExpenseFinder())->execute($id);
+        $category = (new CategoryFinder())->execute($id);
 
         $this->id = $id;
-        $this->name = $templateExpense->name;
-        $this->showModalDeleteExpense = true;
+        $this->name = $category->name;
+        $this->showModalDelete = true;
     }
 
     public function destroy(): void
     {
-        $response = (new DeleteTemplateExpense())->execute($this->id);
+        $response = (new DeleteCategory())->execute($this->id);
 
         if ($response['success']) {
             $this->showSuccess('Eliminación de plantilla', $response['message'], 5000);
@@ -167,6 +171,6 @@ class TemplateExpensesComponent extends Component
             exit;
         }
         $this->resetFields();
-        $this->showModalDeleteExpense = false;
+        $this->showModalDelete = false;
     }
 }

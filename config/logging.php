@@ -133,7 +133,12 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
-
+        'CategoryError' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/CategoryError.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

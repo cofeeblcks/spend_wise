@@ -21,7 +21,7 @@ Route::middleware(['auth'])->group(function () {
     // Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
     Route::get('Gastos', TemplateExpensesComponent::class)->name('expenses');
-    Route::get('Categorias', CategoriesComponent::class)->name('settings.categories');
+    Route::get('Ajustes/Categorias', CategoriesComponent::class)->name('settings.categories');
 });
 
 require __DIR__.'/auth.php';

@@ -4,7 +4,9 @@
 
     <flux:breadcrumbs class="mb-4">
         <flux:breadcrumbs.item href="{{ route('dashboard') }}" icon="home" />
-        <flux:breadcrumbs.item href="{{ route('expenses') }}">Gastos</flux:breadcrumbs.item>
+        @foreach ($breadcumbs as $breadcumb)
+            <flux:breadcrumbs.item href="{{ !empty($breadcumb['route']) ? route($breadcumb['route']) : '' }}">{{ $breadcumb['name'] }}</flux:breadcrumbs.item>
+        @endforeach
     </flux:breadcrumbs>
 
     <div class="my-2 w-full grid grid-cols-1 gap-4">
