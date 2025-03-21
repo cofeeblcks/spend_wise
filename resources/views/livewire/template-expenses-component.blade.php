@@ -40,13 +40,14 @@
                                 <flux:menu>
                                     <flux:menu.item icon="pencil-square" wire:click="edit({{ $templateExpense->id }})">Editar</flux:menu.item>
                                     <flux:menu.item icon="dollar-sign">Registrar gasto</flux:menu.item>
+                                    <flux:menu.item icon="history">Registrar pagos recurrentes</flux:menu.item>
                                     <flux:menu.item icon="trash" variant="danger" wire:click="delete({{ $templateExpense->id }})">Eliminar</flux:menu.item>
                                 </flux:menu>
                             </flux:dropdown>
                         </div>
                         <div class="flex-auto p-4 pt-6">
                             <ul class="flex flex-col pl-0 mb-0 rounded-lg">
-                                <li class="grid grid-cols-1 gap-1 p-6 mb-2 border-0 rounded-t-inherit rounded-xl bg-gray-50">
+                                <li class="grid grid-cols-1 gap-1 p-6 mb-2 border-0 rounded-t-inherit rounded-xl bg-emphasis">
                                     <div class="flex flex-col">
                                         <span>{{ $templateExpense->description ?? '' }}</span>
                                     </div>
@@ -55,6 +56,12 @@
                                     </div>
                                     <div class="flex flex-col">
                                         <span>Total de gastos: $ {{ number_format($templateExpense->expenses->sum('amount'), 0, '.', ',') }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span>Pagos recurrentes: {{ $templateExpense->recurringPayments->count() }}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span>Total de pagos recurrentes: $ {{ number_format($templateExpense->recurringPayments->sum('amount'), 0, '.', ',') }}</span>
                                     </div>
                                 </li>
                             </ul>
