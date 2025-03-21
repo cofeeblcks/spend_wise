@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,5 +31,11 @@ class TemplateExpense extends Model
     public function recurringPayments(): HasMany
     {
         return $this->hasMany(RecurringPayment::class);
+    }
+
+    public function scopeFilter(Builder $builder, ?string $search): Builder
+    {
+        return $builder->where('name', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%");
     }
 }
