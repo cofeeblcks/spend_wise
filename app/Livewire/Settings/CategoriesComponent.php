@@ -8,12 +8,15 @@ use App\Actions\Settings\Categories\CategoryFinder;
 use App\Actions\Settings\Categories\CategoriesList;
 use App\Actions\Settings\Categories\UpdateCategory;
 use App\Traits\ToastNotifications;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class CategoriesComponent extends Component
 {
     use ToastNotifications;
+    use WithPagination;
 
     public bool $showModalCreateOrEdit = false;
     public bool $showModalDelete = false;
@@ -70,15 +73,15 @@ class CategoriesComponent extends Component
         $this->resetErrorBag();
     }
 
-    private function getCategories(): Collection
+    private function getCategories(): LengthAwarePaginator
     {
         $response = (new CategoriesList())->execute();
 
         if ($response['success']) {
-            return collect($response['categories']);
+            return $response['categories'];
         }
 
-        return collect();
+        return new LengthAwarePaginator([], 0, 1, 1);
     }
 
     private function resetFields(): void
