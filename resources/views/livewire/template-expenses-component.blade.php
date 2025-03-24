@@ -31,18 +31,23 @@
 
     <div class="my-2 grid grid-cols-4 gap-4">
         @foreach ($templateExpenses as $templateExpense )
-            <div class="flex flex-wrap -mx-3">
+            <div class="flex flex-col flex-wrap -mx-3">
                 <div class="w-full max-w-full px-3 mt-6 md:flex-none">
                     <div class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-xl rounded-2xl bg-clip-border">
                         <div class="flex justify-between items-center p-6 px-4 pb-0 mb-0 border-b-0">
-                            <h6 class="mb-0 font-semibold">{{ $templateExpense->name }}</h6>
+                            <div>
+                                <h6 class="mb-0 font-semibold">{{ $templateExpense->name }}</h6>
+                                <div class="flex flex-col text-sm text-gray-500">
+                                    <span>{{ $templateExpense->description ?? '' }}</span>
+                                </div>
+                            </div>
                             <flux:dropdown>
-                                <flux:button icon-trailing="ellipsis-vertical"></flux:button>
+                                <flux:button class="border-0" icon-trailing="ellipsis-vertical"></flux:button>
 
                                 <flux:menu>
                                     <flux:menu.item icon="pencil-square" wire:click="edit({{ $templateExpense->id }})">Editar</flux:menu.item>
                                     <flux:menu.item icon="dollar-sign">Registrar gasto</flux:menu.item>
-                                    <flux:menu.item icon="history">Registrar pagos recurrentes</flux:menu.item>
+                                    <flux:menu.item icon="history" wire:click="createRecurringPayment({{ $templateExpense->id }})">Registrar pagos recurrentes</flux:menu.item>
                                     <flux:menu.item icon="trash" variant="danger" wire:click="delete({{ $templateExpense->id }})">Eliminar</flux:menu.item>
                                 </flux:menu>
                             </flux:dropdown>
@@ -50,9 +55,6 @@
                         <div class="flex-auto p-4 pt-6">
                             <ul class="flex flex-col pl-0 mb-0 rounded-lg">
                                 <li class="grid grid-cols-1 gap-1 p-6 mb-2 border-0 rounded-t-inherit rounded-xl bg-emphasis">
-                                    <div class="flex flex-col">
-                                        <span>{{ $templateExpense->description ?? '' }}</span>
-                                    </div>
                                     <div class="flex flex-col">
                                         <span>Gastos registrados: {{ $templateExpense->expenses->count() }}</span>
                                     </div>
@@ -73,12 +75,15 @@
             </div>
         @endforeach
     </div>
+    <div class="flex flex-col mt-2">
+        {{ $templateExpenses->links() }}
+    </div>
 
     {{-- Modals --}}
-    <flux:modal wire:model.self="showModalExpense" :dismissible="false" variant="flyout" class="md:w-1/2">
+    <flux:modal wire:model.self="showModalCreateOrEdit" :dismissible="false" variant="flyout" class="md:w-1/2">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">{{ $createTemplateExpense ? 'Crear' : 'Editar' }} plantilla de gastos</flux:heading>
+                <flux:heading size="lg">{{ $createRegister ? 'Crear' : 'Editar' }} plantilla de gastos</flux:heading>
             </div>
 
             <flux:input label="Nombre plantilla" placeholder="Ej: Gastos del mes" wire:model="basicData.name" />
@@ -87,7 +92,7 @@
 
             <div class="flex">
                 <flux:spacer />
-                @if( $createTemplateExpense )
+                @if( $createRegister )
                     <flux:button wire:click="store" :loading="true" variant="primary">Guardar</flux:button>
                 @else
                     <flux:button wire:click="update" :loading="true" variant="primary">Guardar cambios</flux:button>
@@ -96,7 +101,7 @@
         </div>
     </flux:modal>
 
-    <flux:modal wire:model.self="showModalDeleteExpense" :dismissible="false" class="min-w-[22rem]">
+    <flux:modal wire:model.self="showModalDelete" :dismissible="false" class="min-w-[22rem]">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">Eliminar plantilla?</flux:heading>
@@ -115,6 +120,30 @@
                 </flux:modal.close>
 
                 <flux:button wire:click="destroy" variant="danger">Si, eliminar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
+
+    {{-- Recurring payments --}}
+    <flux:modal wire:model.self="showModalCreateRecurringPayment" :dismissible="false" variant="flyout" class="md:w-1/2">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">{{ $createRegisterRecurringPayment ? 'Crear' : 'Editar' }} pago recurrente</flux:heading>
+            </div>
+
+            <flux:textarea label="Descripción" placeholder="Pago de arriendo" rows="auto" wire:model="dataRecurringPayment.description" />
+
+            <flux:input type="number" label="Valor" placeholder="Ej: $ 1.000" wire:model="dataRecurringPayment.ammmount" />
+
+            <flux:input type="date" label="Fecha de inicio" wire:model="dataRecurringPayment.startDate" />
+
+            <div class="flex">
+                <flux:spacer />
+                @if( $createRegisterRecurringPayment )
+                    <flux:button wire:click="store" :loading="true" variant="primary">Guardar</flux:button>
+                @else
+                    <flux:button wire:click="update" :loading="true" variant="primary">Guardar cambios</flux:button>
+                @endif
             </div>
         </div>
     </flux:modal>

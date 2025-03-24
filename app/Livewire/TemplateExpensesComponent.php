@@ -8,16 +8,22 @@ use App\Actions\TemplateExpenses\TemplateExpenseFinder;
 use App\Actions\TemplateExpenses\TemplateExpensesList;
 use App\Actions\TemplateExpenses\UpdateTemplateExpense;
 use App\Traits\ToastNotifications;
-use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class TemplateExpensesComponent extends Component
 {
     use ToastNotifications;
+    use WithPagination;
 
-    public bool $showModalExpense = false;
-    public bool $showModalDeleteExpense = false;
-    public bool $createTemplateExpense = true;
+    public bool $showModalCreateOrEdit = false;
+    public bool $showModalDelete = false;
+    public bool $createRegister = true;
+
+    public bool $showModalCreateRecurringPayment = false;
+    public bool $showModalDeleteRecurringPayment = false;
+    public bool $createRegisterRecurringPayment = true;
 
     public int $id;
     public string $name;
@@ -25,6 +31,16 @@ class TemplateExpensesComponent extends Component
     public array $basicData = [
         'name' => null,
         'description' => null,
+    ];
+
+    public array $dataRecurringPayment = [
+        'description' => null,
+        'amount' => null,
+        'startDate' => null,
+        'endDate' => null,
+        'totalInstallments' => null,
+        'categoryId' => null,
+        'frequencyId' => null,
     ];
 
     public array $breadcumbs = [
@@ -66,15 +82,15 @@ class TemplateExpensesComponent extends Component
         $this->resetErrorBag();
     }
 
-    private function getTemplateExpenses(): Collection
+    private function getTemplateExpenses(): LengthAwarePaginator
     {
         $response = (new TemplateExpensesList())->execute();
 
         if ($response['success']) {
-            return collect($response['templateExpenses']);
+            return $response['templateExpenses'];
         }
 
-        return collect();
+        return new LengthAwarePaginator([], 0, 1);
     }
 
     private function resetFields(): void
@@ -83,14 +99,14 @@ class TemplateExpensesComponent extends Component
             'id',
             'name',
             'basicData',
-            'createTemplateExpense',
+            'createRegister',
         ]);
     }
 
     public function create(): void
     {
         $this->resetFields();
-        $this->showModalExpense = true;
+        $this->showModalCreateOrEdit = true;
     }
 
     public function store(): void
@@ -110,7 +126,7 @@ class TemplateExpensesComponent extends Component
             exit;
         }
 
-        $this->showModalExpense = false;
+        $this->showModalCreateOrEdit = false;
     }
 
     public function edit(int $id):void
@@ -123,8 +139,8 @@ class TemplateExpensesComponent extends Component
         ];
 
         $this->id = $id;
-        $this->createTemplateExpense = false;
-        $this->showModalExpense = true;
+        $this->createRegister = false;
+        $this->showModalCreateOrEdit = true;
     }
 
     public function update(): void
@@ -144,7 +160,7 @@ class TemplateExpensesComponent extends Component
             exit;
         }
         $this->resetFields();
-        $this->showModalExpense = false;
+        $this->showModalCreateOrEdit = false;
     }
 
     public function delete(int $id):void
@@ -153,7 +169,7 @@ class TemplateExpensesComponent extends Component
 
         $this->id = $id;
         $this->name = $templateExpense->name;
-        $this->showModalDeleteExpense = true;
+        $this->showModalDelete = true;
     }
 
     public function destroy(): void
@@ -167,6 +183,18 @@ class TemplateExpensesComponent extends Component
             exit;
         }
         $this->resetFields();
-        $this->showModalDeleteExpense = false;
+        $this->showModalDelete = false;
+    }
+
+    /**
+     * Function for register payment recurrings in template expenses
+     * @author Hadik Chavez (ChivoDev) -  CofeeBlcks <cofeeblcks@gmail.com, chavezhadik@gmail.com>
+     * @param integer $id
+     * @return void
+     */
+    public function createRecurringPayment(int $id):void
+    {
+        $this->id = $id;
+        $this->showModalCreateRecurringPayment = true;
     }
 }
