@@ -21,7 +21,7 @@
                 </flux:navbar.item>
 
                 <flux:dropdown class="max-lg:hidden">
-                    <flux:navbar.item icon="bolt" :current="request()->routeIs('settings.categories')" wire:navigate icon-trailing="chevron-down">
+                    <flux:navbar.item icon="settings-2" :current="request()->routeIs('settings.categories')" wire:navigate icon-trailing="chevron-down">
                         {{ __('Settings') }}
                     </flux:navbar.item>
 
@@ -127,10 +127,10 @@
                     <x-app-logo-icon class="size-10 fill-current text-white dark:text-black" />
                 </a>
 
-                <p class="text-sm text-gray-600 dark:text-gray-300">© Copyright 2025. Todos los derechos reservados.</p>
+                <p class="text-sm text-gray-600 dark:text-gray-300">© Copyright 2025. Todos los derechos reservados. | Hadik Chavez - CofeeBlcks</p>
 
                 <div class="flex -mx-2">
-                    <a href="https://github.com/cofeeblcks/spend_wise" target="_blank" class="mx-2 text-gray-600 transition-colors duration-300 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400" aria-label="Github">
+                    <a href="https://github.com/cofeeblcks/cofeeblcks" target="_blank" class="mx-2 text-gray-600 transition-colors duration-300 dark:text-gray-300 hover:text-accent" aria-label="Github">
                         <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
