@@ -32,18 +32,12 @@
                 }, message.duration)" x-show="message.show" x-transition:out.opacity.duration.500ms
                     x-transition:leave.opacity.duration.500ms>
 
-                    <div :class="'flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md' + (
+                    <div :class="'flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md cursor-pointer ' + (
                         message.type == 'success' ? ' text-success' :
                         message.type == 'info' ? ' text-info' :
                         message.type == 'warning' ? ' text-warning' :
                         message.type == 'danger' ? ' text-danger' : ''
-                    )">
-                        <div class="bg-white rounded-full size-8 absolute top-6 right-2 cursor-pointer" x-on:click="deleteMessage(message.id);clearTimeout(message.timmer);message.show = false;">
-                            <span class="sr-only">Close</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                    )" x-on:click="deleteMessage(message.id);clearTimeout(message.timmer);message.show = false;">
                         <div class="flex w-full max-w-sm overflow-hidden">
                             <div x-show="message.type == 'success'">
                                 <div class="flex items-center justify-center w-12 h-full bg-success">
