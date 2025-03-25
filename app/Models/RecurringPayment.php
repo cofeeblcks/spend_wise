@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +17,7 @@ class RecurringPayment extends Model
         'amount',
         'start_date',
         'end_date',
+        'payment_day',
         'total_installments',
         'status',
         'template_expense_id',
@@ -48,5 +50,12 @@ class RecurringPayment extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function scopeFilter(Builder $builder, ?string $search)
+    {
+        $builder->when($search, function (Builder $builder) use ($search) {
+            $builder->where('description', 'like', "%{$search}%");
+        });
     }
 }

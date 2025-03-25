@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Actions\Settings\Categories;
+namespace App\Actions\RecurringPayments;
 
-use App\Models\Category;
+use App\Models\RecurringPayment;
 use App\Traits\WithActionList;
 use Illuminate\Support\Facades\Log;
 
-final class CategoriesList
+final class RecurringPaymentsList
 {
     use WithActionList;
 
     public function execute(?string $filter = null): array
     {
         try {
-            $categories = Category::query()
+            $recurringPayments = RecurringPayment::query()
                 ->filter($filter);
 
             return [
                 'success' => true,
-                'categories' => $this->run($categories)
+                'recurringPayments' => $this->run($recurringPayments)
             ];
         } catch (\Exception $e) {
-            Log::channel('CategoryError')->error("Message: {$e->getMessage()}, File: {$e->getFile()}, Line: {$e->getLine()}");
+            Log::channel('RecurringPaymentError')->error("Message: {$e->getMessage()}, File: {$e->getFile()}, Line: {$e->getLine()}");
 
             return [
                 'success' => false,

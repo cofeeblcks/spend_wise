@@ -16,7 +16,8 @@ return new class extends Migration
             $table->longText('description');
             $table->double('amount');
             $table->date('start_date');
-            $table->date('end_date');
+            $table->date('end_date')->nullable();
+            $table->integer('payment_day');
             $table->integer('total_installments');
             $table->boolean('status')->default(true);
             $table->foreignId('template_expense_id')->constrained();

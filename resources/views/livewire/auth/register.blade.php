@@ -83,7 +83,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             type="text"
             required
             autocomplete="phone"
-            placeholder="+57123459874"
+            placeholder="(+57) 123 459874"
+            x-mask:dynamic="'(+99) 999 999 9999'"
         />
 
         <!-- Password -->

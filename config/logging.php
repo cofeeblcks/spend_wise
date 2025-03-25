@@ -139,6 +139,12 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
+        'RecurringPaymentError' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/RecurringPaymentError.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

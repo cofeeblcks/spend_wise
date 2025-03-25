@@ -7,9 +7,8 @@ use App\Actions\Settings\Categories\DeleteCategory;
 use App\Actions\Settings\Categories\CategoryFinder;
 use App\Actions\Settings\Categories\CategoriesList;
 use App\Actions\Settings\Categories\UpdateCategory;
+use App\Enums\OutputList;
 use App\Traits\ToastNotifications;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -73,15 +72,17 @@ class CategoriesComponent extends Component
         $this->resetErrorBag();
     }
 
-    private function getCategories(): LengthAwarePaginator
+    private function getCategories()
     {
-        $response = (new CategoriesList())->execute();
+        $response = (new CategoriesList())
+            ->setParam('output', OutputList::PAGINATE)
+            ->execute();
 
         if ($response['success']) {
             return $response['categories'];
         }
 
-        return new LengthAwarePaginator([], 0, 1, 1);
+        return collect([]);
     }
 
     private function resetFields(): void

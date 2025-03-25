@@ -19,7 +19,7 @@
                 <thead class="align-bottom">
                     <tr>
                         @foreach ($ths as $th)
-                            <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-accent">{{ $th }}</th>
+                            <th class="px-6 py-3 font-bold text-sm text-center uppercase align-middle bg-transparent border-b border-collapse shadow-none dark:border-white/40 dark:text-white text-xxs border-b-solid tracking-none whitespace-nowrap text-accent">{{ $th }}</th>
                         @endforeach
                     </tr>
                 </thead>
