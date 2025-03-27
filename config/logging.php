@@ -145,6 +145,12 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
+        'ExpenseError' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/ExpenseError.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

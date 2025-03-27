@@ -76,7 +76,7 @@
     @if( !empty($label) )
         <ui-label for="{{$id}}" class="text-sm font-medium text-zinc-800 dark:text-white">{{ $label }}</ui-label>
     @endif
-    <div x-ref="input" x-on:click="open = true" class="flex items-center cursor-pointer justify-between w-full border rounded-lg disabled:shadow-none dark:shadow-none appearance-none text-base sm:text-sm py-2 h-10 leading-[1.375rem] pl-3 pr-3 bg-white dark:bg-white/10 dark:disabled:bg-white/[7%] text-zinc-700 disabled:text-zinc-500 placeholder-zinc-400 disabled:placeholder-zinc-400/70 dark:text-zinc-300 dark:disabled:text-zinc-400 dark:placeholder-zinc-400 dark:disabled:placeholder-zinc-500 shadow-xs border-zinc-200 border-b-zinc-300/80 disabled:border-b-zinc-200 dark:border-white/10 dark:disabled:border-white/5 focus:bg-accent @error ( $attributes->wire('model')->value ) !border-danger @enderror @if ($disabled) bg-black/10 @else bg-white @endif px-[2px] py-[2px] min-h-[42px]">
+    <div x-ref="input" x-on:click="open = true" class="flex items-center cursor-pointer justify-between w-full border rounded-lg dark:shadow-none appearance-none text-base sm:text-sm py-2 h-10 leading-[1.375rem] pl-3 pr-3 bg-white dark:bg-white/10 text-zinc-700 placeholder-zinc-400 dark:text-zinc-300 dark:placeholder-zinc-400 shadow-xs border-zinc-200 border-b-zinc-300/80 dark:border-white/10 focus:bg-accent @error ( $attributes->wire('model')->value ) !border-danger @enderror @if($disabled) !bg-zinc-100 @else bg-white @endif px-[2px] py-[2px] min-h-[42px]">
         <div class="flex items-center flex-wrap">
             @php
                 $hasSelected = false;
@@ -180,7 +180,7 @@
                                         <input value="{{json_encode($item[$columnId])}}" type="radio" readonly :checked="validateChecked({{json_encode($item[$columnId])}})" class="border-2 border-[#242424] rounded-full text-[#203A75] cursor-pointer focus:ring-0">
                                     @endif
                                 </div>
-                                <label class="flex flex-row text-[#2A2A2A] text-[14px] cursor-pointer relative pl-2 pr-2 line-clamp-3 text-ellipsis" title="{{ preg_replace("/[\r\n|\n|\r]+/", PHP_EOL, $item[$columnName]) }}">
+                                <label class="flex flex-row text-[#2A2A2A] text-[14px] cursor-pointer relative pl-2 pr-2 line-clamp-3 text-ellipsis @if($disabled) text-zinc-400 @endif" title="{{ preg_replace("/[\r\n|\n|\r]+/", PHP_EOL, $item[$columnName]) }}">
                                     {{ preg_replace("/[\r\n|\n|\r]+/", PHP_EOL, $item[$columnName]) }}
                                 </label>
                             </div>
@@ -188,7 +188,7 @@
                     </div>
                 @endforeach
                 @if (!$hasData)
-                    <div class="px-4">
+                    <div class="px-4 text-sm">
                         @if (empty($search))
                             No hay registros disponibles
                         @else

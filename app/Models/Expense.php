@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,5 +38,12 @@ class Expense extends Model
     public function recurringPayment(): BelongsTo
     {
         return $this->belongsTo(RecurringPayment::class);
+    }
+
+    public function scopeFilter(Builder $builder, ?string $search)
+    {
+        $builder->when($search, function (Builder $builder) use ($search) {
+            $builder->where('description', 'like', "%{$search}%");
+        });
     }
 }

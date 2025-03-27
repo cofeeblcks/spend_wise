@@ -63,7 +63,7 @@
 
                                     <flux:menu>
                                         <flux:menu.item icon="pencil-square" wire:click="edit({{ $templateExpense->id }})">Editar</flux:menu.item>
-                                        <flux:menu.item icon="dollar-sign">Registrar gasto</flux:menu.item>
+                                        <flux:menu.item icon="dollar-sign" wire:click="createExpense({{ $templateExpense->id }})">Registrar gasto</flux:menu.item>
                                         <flux:menu.item icon="history" wire:click="createRecurringPayment({{ $templateExpense->id }})">Registrar pagos recurrentes</flux:menu.item>
                                         <flux:menu.item icon="trash" variant="danger" wire:click="delete({{ $templateExpense->id }})">Eliminar</flux:menu.item>
                                     </flux:menu>
@@ -72,20 +72,26 @@
                             <div class="flex-auto p-4 pt-6">
                                 <ul class="flex flex-col pl-0 mb-0 rounded-lg">
                                     <li class="grid grid-cols-1 gap-1 p-6 mb-2 border-0 rounded-t-inherit rounded-xl bg-emphasis">
-                                        <div class="flex flex-col">
-                                            <span>Gastos registrados: {{ $templateExpense->expenses->count() }}</span>
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span>Total de gastos: $ {{ number_format($templateExpense->expenses->sum('amount'), 0, ',', '.') }}</span>
-                                        </div>
                                         <div class="flex flex-row items-center">
-                                            <span>Pagos recurrentes: {{ $templateExpense->recurringPayments->count() }}</span>
-                                            @if( $templateExpense->recurringPayments->count() > 0 )
-                                                <flux:badge wire:click="showRecurringPayments({{ $templateExpense->id }})" variant="pill" icon="view" as="button" color="green" inset="top bottom" class="ml-2">Ver</flux:badge>
+                                            <span>Gastos registrados: {{ $templateExpense->expenses->count() }}</span>
+                                            @if( $templateExpense->expenses->count() > 0 )
+                                                <flux:badge wire:click="showExpenses({{ $templateExpense->id }})" variant="pill" icon="view" as="button" color="green" inset="top bottom" class="ml-2 cursor-pointer">Ver</flux:badge>
                                             @endif
                                         </div>
                                         <div class="flex flex-col">
-                                            <span>Total de pagos recurrentes: $ {{ number_format($templateExpense->recurringPayments->sum('amount'), 0, ',', '.') }}</span>
+                                            <span>Total de gastos: {{ config('app.currency.symbol') }} {{ number_format($templateExpense->expenses->sum('amount'), 0, ',', '.') }}</span>
+                                        </div>
+                                    </li>
+
+                                    <li class="grid grid-cols-1 gap-1 p-6 mb-2 border-0 rounded-t-inherit rounded-xl bg-emphasis">
+                                        <div class="flex flex-row items-center">
+                                            <span>Pagos recurrentes: {{ $templateExpense->recurringPayments->count() }}</span>
+                                            @if( $templateExpense->recurringPayments->count() > 0 )
+                                                <flux:badge wire:click="showRecurringPayments({{ $templateExpense->id }})" variant="pill" icon="view" as="button" color="green" inset="top bottom" class="ml-2 cursor-pointer">Ver</flux:badge>
+                                            @endif
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span>Total de pagos recurrentes: {{ config('app.currency.symbol') }} {{ number_format($templateExpense->recurringPayments->sum('amount'), 0, ',', '.') }}</span>
                                         </div>
                                     </li>
                                 </ul>
@@ -112,8 +118,13 @@
 
                 <flux:textarea label="Descripción" placeholder="Gastos generados para el mes" rows="auto" wire:model="basicData.description" />
 
-                <div class="flex">
+                <div class="flex gap-2">
                     <flux:spacer />
+
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+
                     @if( $createRegister )
                         <flux:button wire:click="store" :loading="true" variant="primary">Guardar</flux:button>
                     @else
@@ -193,8 +204,12 @@
                     <flux:input type="number" label="Número de cuotas" placeholder="Ej: 5" wire:model="dataRecurringPayment.totalInstallments" />
                 </div>
 
-                <div class="flex">
+                <div class="flex gap-2">
                     <flux:spacer />
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+
                     @if( $createRegisterRecurringPayment )
                         <flux:button wire:click="storeRecurringPayment" :loading="true" variant="primary">Guardar</flux:button>
                     @else
@@ -205,15 +220,15 @@
         </flux:modal>
     @endif
 
-    @if( $showModalShowRecurringPayment )
-        <flux:modal wire:model.self="showModalShowRecurringPayment" :dismissible="true" variant="flyout" class="md:w-3/4">
+    @if( $showModalShowRecurringPayments )
+        <flux:modal wire:model.self="showModalShowRecurringPayments" :dismissible="true" variant="flyout" class="md:w-3/4">
             <div>
                 <flux:heading size="xl">Pagos recurrentes: {{ $name }}</flux:heading>
             </div>
             <div class="space-y-6">
                 <div class="my-2 grid grid-cols-1 gap-4 mt-8">
                     <div class="relative flex flex-col flex-auto min-w-0 p-4 overflow-hidden break-words bg-white border-1 shadow-xl shadow-dark-xl rounded-2xl bg-clip-border">
-                        <x-table :ths="['Item', 'Categoria', 'Descripción', 'Fecha', 'Frecuencia de pago', 'Día de pago', 'Total de cuotas', 'Valor', 'Acciones']">
+                        <x-table :ths="['Item', 'Categoria', 'Descripción', 'Fecha', 'Frecuencia de pago', 'Día de pago', 'Cuotas', 'Valor', 'Total', 'Acciones']">
                             <x-slot name="trs">
                                 @foreach ($recurringPayments ?? [] as $recurringPayment)
                                     <tr class="odd:bg-white even:bg-emphasis hover:bg-accent/10">
@@ -229,9 +244,9 @@
                                             {{ $recurringPayment->description }}
                                         </td>
 
-                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
-                                            <flux:badge variant="pill" icon="calendar-arrow-up" as="button" color="green" inset="top bottom">{{ $recurringPayment->start_date->format('Y-m-d') }}</flux:badge>
-                                            <flux:badge variant="pill" icon="calendar-arrow-down" as="button" color="red" inset="top bottom">{{ $recurringPayment->end_date->format('Y-m-d') }}</flux:badge>
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap flex flex-col">
+                                            <flux:badge variant="pill" icon="calendar-arrow-up" as="button" color="green" class="my-1">{{ $recurringPayment->start_date->format('Y-m-d') }}</flux:badge>
+                                            <flux:badge variant="pill" icon="calendar-arrow-down" as="button" color="red" class="my-1">{{ $recurringPayment->end_date->format('Y-m-d') }}</flux:badge>
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
@@ -243,11 +258,15 @@
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
-                                            {{ $recurringPayment->total_installments }}
+                                            {{ $recurringPayment->expenses->count() }}/{{ $recurringPayment->total_installments }}
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
-                                            $ {{ number_format($recurringPayment->amount, 0, ',', '.') }}
+                                            {{ config('app.currency.symbol') }}{{ number_format($recurringPayment->amount, 0, ',', '.') }}
+                                        </td>
+
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
+                                            {{ config('app.currency.symbol') }}{{ number_format($recurringPayment->amount * $recurringPayment->total_installments, 0, ',', '.') }}
                                         </td>
 
                                         <td class="px-4 py-4 text-sm text-center whitespace-nowrap rounded-r-xl">
@@ -265,7 +284,7 @@
                             </x-slot>
                         </x-table>
                         <div class="flex flex-col my-3">
-                            <flux:badge size="lg" class="flex justify-end my-2 text-xl !text-accent font-semibold">Total de pagos recurrentes: $ {{ number_format($recurringPayments->sum('amount'), 0, ',', '.') }}</flux:badge>
+                            <flux:badge size="lg" class="flex justify-end my-2 text-xl !text-accent font-semibold">Total de pagos recurrentes: {{ config('app.currency.symbol') }}{{ number_format($recurringPayments->sum('amount'), 0, ',', '.') }}</flux:badge>
                         </div>
                     </div>
                 </div>
@@ -293,6 +312,140 @@
                     </flux:modal.close>
 
                     <flux:button wire:click="destroyRecurringPayment" variant="danger">Si, eliminar</flux:button>
+                </div>
+            </div>
+        </flux:modal>
+    @endif
+
+    {{-- Create or Edit expenses --}}
+    @if( $showModalCreateExpense )
+        <flux:modal wire:model.self="showModalCreateExpense" :dismissible="false" variant="flyout" class="md:w-1/2">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">{{ $createRegisterExpense ? 'Registrar' : 'Editar' }} gasto</flux:heading>
+                    <flux:text class="mt-2">Si el gasto no es un pago recurrente, puedes dejar el <strong>pago recurrente</strong> en blanco</flux:text>
+                </div>
+
+                <x-select
+                    label="Pago recurrente"
+                    wire:model.live="dataExpense.recurringPaymentId"
+                    dataset="App\Actions\RecurringPayments\RecurringPaymentsList"
+                    :params="[
+                        'recordsPerPage' => 10,
+                        'output' => 'paginate',
+                        'templateExpenseId' => $templateExpenseId
+                    ]"
+                    :disabled="$disabledInputExpense"
+                />
+
+                <flux:textarea label="Descripción" placeholder="Pago de arriendo" rows="auto" wire:model="dataExpense.description" />
+
+                <flux:input type="text" label="Valor" placeholder="Ej: 1.000" wire:model="dataExpense.amount" x-mask:dynamic="$money($input, ',')" />
+
+                <flux:input type="date" label="Fecha de pago" wire:model.live.lazy="dataExpense.paymentDate" />
+
+                <x-select
+                    label="Categoría"
+                    wire:model.live="dataExpense.categoryId"
+                    dataset="App\Actions\Settings\Categories\CategoriesList"
+                    :params="[
+                        'recordsPerPage' => 10,
+                        'output' => 'paginate',
+                    ]"
+                    :disabled="$disabledInputExpense"
+                />
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    @if( $createRegisterExpense )
+                        <flux:button wire:click="storeExpense" :loading="true" variant="primary">Guardar</flux:button>
+                    @else
+                        <flux:button wire:click="updateExpense" :loading="true" variant="primary">Guardar cambios</flux:button>
+                    @endif
+                </div>
+            </div>
+        </flux:modal>
+    @endif
+
+    @if( $showModalShowExpenses )
+        <flux:modal wire:model.self="showModalShowExpenses" :dismissible="true" variant="flyout" class="md:w-3/4">
+            <div>
+                <flux:heading size="xl">Gastos: {{ $name }}</flux:heading>
+            </div>
+            <div class="space-y-6">
+                <div class="my-2 grid grid-cols-1 gap-4 mt-8">
+                    <div class="relative flex flex-col flex-auto min-w-0 p-4 overflow-hidden break-words bg-white border-1 shadow-xl shadow-dark-xl rounded-2xl bg-clip-border">
+                        <x-table :ths="['Item', 'Categoria', 'Descripción', 'Fecha de pago', 'Valor', 'Acciones']">
+                            <x-slot name="trs">
+                                @foreach ($expenses ?? [] as $expense)
+                                    <tr class="odd:bg-white even:bg-emphasis hover:bg-accent/10">
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap rounded-l-xl">
+                                            {{ $loop->iteration }}
+                                        </td>
+
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
+                                            <flux:badge variant="pill" as="button" color="blue" inset="top bottom">{{ $expense->category->name }}</flux:badge>
+                                        </td>
+
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
+                                            {{ $expense->description }}
+                                        </td>
+
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap flex flex-col">
+                                            {{ $expense->payment_date->format('Y-m-d') }}
+                                        </td>
+
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
+                                            {{ config('app.currency.symbol') }}{{ number_format($expense->amount, 0, ',', '.') }}
+                                        </td>
+
+                                        <td class="px-4 py-4 text-sm text-center whitespace-nowrap rounded-r-xl">
+                                            <flux:dropdown>
+                                                <flux:button class="border-0" icon-trailing="ellipsis-vertical"></flux:button>
+
+                                                <flux:menu>
+                                                    <flux:menu.item icon="pencil-square" wire:click="editExpense({{ $expense->id }})">Editar</flux:menu.item>
+                                                    <flux:menu.item icon="trash" variant="danger" wire:click="deleteExpense({{ $expense->id }})">Eliminar</flux:menu.item>
+                                                </flux:menu>
+                                            </flux:dropdown>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </x-slot>
+                        </x-table>
+                        <div class="flex flex-col my-3">
+                            <flux:badge size="lg" class="flex justify-end my-2 text-xl !text-accent font-semibold">Total de gastos: {{ config('app.currency.symbol') }}{{ number_format($expenses->sum('amount'), 0, ',', '.') }}</flux:badge>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </flux:modal>
+    @endif
+
+    @if( $showModalDeleteExpense )
+        <flux:modal wire:model.self="showModalDeleteExpense" :dismissible="false" class="min-w-[22rem]">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Eliminar gasto?</flux:heading>
+
+                    <flux:subheading>
+                        <p>Estas seguro de eliminar el gasto <strong>{{ $name }}</strong>?</p>
+                        <p>Esta acción no se puede deshacer.</p>
+                    </flux:subheading>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:spacer />
+
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button wire:click="destroyExpense" variant="danger">Si, eliminar</flux:button>
                 </div>
             </div>
         </flux:modal>

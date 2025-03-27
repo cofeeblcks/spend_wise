@@ -2,6 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Actions\Expenses\CreateExpense;
+use App\Actions\Expenses\DeleteExpense;
+use App\Actions\Expenses\ExpenseFinder;
+use App\Actions\Expenses\UpdateExpense;
 use App\Actions\RecurringPayments\CreateRecurringPayment;
 use App\Actions\RecurringPayments\DeleteRecurringPayment;
 use App\Actions\RecurringPayments\RecurringPaymentFinder;
@@ -33,12 +37,18 @@ class TemplateExpensesComponent extends Component
     public bool $showModalDeleteRecurringPayment = false;
     public bool $createRegisterRecurringPayment = true;
 
-    public bool $showModalShowRecurringPayment = false;
+    public bool $showModalShowRecurringPayments = false;
+    public bool $showModalShowExpenses = false;
 
-    public int $id;
+    public bool $showModalCreateExpense = false;
+    public bool $showModalDeleteExpense = false;
+    public bool $createRegisterExpense = true;
+    public bool $disabledInputExpense = false;
+
+    public int $templateExpenseId;
+    public int $recurringPaymentId;
+    public int $expenseId;
     public string $name;
-
-    public int $idRecurringPayment;
 
     public array $basicData = [
         'name' => null,
@@ -56,7 +66,16 @@ class TemplateExpensesComponent extends Component
         'frequencyId' => null,
     ];
 
+    public array $dataExpense = [
+        'description' => null,
+        'amount' => null,
+        'paymentDate' => null,
+        'categoryId' => null,
+        'recurringPaymentId' => null,
+    ];
+
     public $recurringPayments;
+    public $expenses;
 
     public array $breadcumbs = [
         [
@@ -83,6 +102,23 @@ class TemplateExpensesComponent extends Component
         }
     }
 
+    public function updatedDataExpenseRecurringPaymentId($value): void
+    {
+        if( !empty($value) ){
+            $recurringPayment = (new RecurringPaymentFinder())->execute($value);
+
+            $this->dataExpense = [
+                'description' => $recurringPayment->description,
+                'amount' => number_format($recurringPayment->amount, 0, ',', '.'),
+                'paymentDate' => null,
+                'categoryId' => $recurringPayment->category_id,
+                'recurringPaymentId' => $recurringPayment->id,
+            ];
+        }else{
+            $this->reset(['dataExpense']);
+        }
+    }
+
     public function validationAttributes()
     {
         return [
@@ -96,6 +132,11 @@ class TemplateExpensesComponent extends Component
             'dataRecurringPayment.totalInstallments' => 'total de cuotas',
             'dataRecurringPayment.categoryId' => 'categoría',
             'dataRecurringPayment.frequencyId' => 'frecuencia',
+            'dataExpense.description' => 'descripción',
+            'dataExpense.amount' => 'valor',
+            'dataExpense.paymentDate' => 'fecha de pago',
+            'dataExpense.categoryId' => 'categoría',
+            'dataExpense.recurringPaymentId' => 'gasto recurrente',
         ];
     }
 
@@ -112,6 +153,11 @@ class TemplateExpensesComponent extends Component
             'dataRecurringPayment.totalInstallments.required' => 'El :attribute es requerido.',
             'dataRecurringPayment.categoryId.required' => 'La :attribute es requerida.',
             'dataRecurringPayment.frequencyId.required' => 'La :attribute es requerida.',
+            'dataExpense.description.required' => 'La :attribute es requerida.',
+            'dataExpense.amount.required' => 'El :attribute es requerido.',
+            'dataExpense.paymentDate.required' => 'La :attribute es requerida.',
+            'dataExpense.categoryId.required' => 'La :attribute es requerida.',
+            'dataExpense.recurringPaymentId.required' => 'El :attribute es requerido.',
         ];
     }
 
@@ -135,6 +181,18 @@ class TemplateExpensesComponent extends Component
             'dataRecurringPayment.totalInstallments' => ['required', 'numeric'],
             'dataRecurringPayment.categoryId' => ['required', 'numeric', 'exists:categories,id'],
             'dataRecurringPayment.frequencyId' => ['required', 'numeric', 'exists:frequencies,id'],
+        ]);
+        $this->resetErrorBag();
+    }
+
+    private function validateExpense(): void
+    {
+        $this->validate([
+            'dataExpense.description' => ['required', 'string', 'max:255'],
+            'dataExpense.amount' => ['required', 'string'],
+            'dataExpense.paymentDate' => ['required', 'date', 'before_or_equal:today'],
+            'dataExpense.categoryId' => ['required', 'numeric', 'exists:categories,id'],
+            'dataExpense.recurringPaymentId' => ['nullable', 'numeric', 'exists:recurring_payments,id'],
         ]);
         $this->resetErrorBag();
     }
@@ -167,12 +225,17 @@ class TemplateExpensesComponent extends Component
     private function resetFields(): void
     {
         $this->reset([
-            'id',
+            'templateExpenseId',
+            'recurringPaymentId',
+            'expenseId',
             'name',
             'basicData',
             'createRegister',
             'dataRecurringPayment',
-            'recurringPayments'
+            'recurringPayments',
+            'createRegisterExpense',
+            'dataExpense',
+            'disabledInputExpense'
         ]);
     }
 
@@ -202,16 +265,18 @@ class TemplateExpensesComponent extends Component
         $this->showModalCreateOrEdit = false;
     }
 
-    public function edit(int $id):void
+    public function edit(int $templateExpenseId):void
     {
-        $templateExpense = (new TemplateExpenseFinder())->execute($id);
+        $this->resetFields();
+
+        $templateExpense = (new TemplateExpenseFinder())->execute($templateExpenseId);
 
         $this->basicData = [
             'name' => $templateExpense->name,
             'description' => $templateExpense->description
         ];
 
-        $this->id = $id;
+        $this->templateExpenseId = $templateExpenseId;
         $this->createRegister = false;
         $this->showModalCreateOrEdit = true;
     }
@@ -224,7 +289,7 @@ class TemplateExpensesComponent extends Component
             throw $th;
         }
 
-        $response = (new UpdateTemplateExpense())->execute($this->id, $this->basicData);
+        $response = (new UpdateTemplateExpense())->execute($this->templateExpenseId, $this->basicData);
 
         if ($response['success']) {
             $this->showSuccess('Actualización de plantilla', $response['message'], 5000);
@@ -236,18 +301,18 @@ class TemplateExpensesComponent extends Component
         $this->showModalCreateOrEdit = false;
     }
 
-    public function delete(int $id):void
+    public function delete(int $templateExpenseId):void
     {
-        $templateExpense = (new TemplateExpenseFinder())->execute($id);
+        $templateExpense = (new TemplateExpenseFinder())->execute($templateExpenseId);
 
-        $this->id = $id;
+        $this->templateExpenseId = $templateExpenseId;
         $this->name = $templateExpense->name;
         $this->showModalDelete = true;
     }
 
     public function destroy(): void
     {
-        $response = (new DeleteTemplateExpense())->execute($this->id);
+        $response = (new DeleteTemplateExpense())->execute($this->templateExpenseId);
 
         if ($response['success']) {
             $this->showSuccess('Eliminación de plantilla', $response['message'], 5000);
@@ -284,26 +349,27 @@ class TemplateExpensesComponent extends Component
         }
     }
 
-    public function showRecurringPayments(int $id): void
+    // START Recurring payments
+    public function showRecurringPayments(int $templateExpenseId): void
     {
-        $templateExpense = (new TemplateExpenseFinder())->execute($id);
+        $templateExpense = (new TemplateExpenseFinder())->execute($templateExpenseId);
 
         $this->recurringPayments = $templateExpense->recurringPayments;
-        $this->id = $id;
+        $this->templateExpenseId = $templateExpenseId;
         $this->name = $templateExpense->name;
-        $this->showModalShowRecurringPayment = true;
+        $this->showModalShowRecurringPayments = true;
     }
 
     /**
      * Function for register payment recurrings in template expenses
      * @author Hadik Chavez (ChivoDev) -  CofeeBlcks <cofeeblcks@gmail.com, chavezhadik@gmail.com>
-     * @param integer $id
+     * @param integer $templateExpenseId
      * @return void
      */
-    public function createRecurringPayment(int $id):void
+    public function createRecurringPayment(int $templateExpenseId):void
     {
         $this->resetFields();
-        $this->id = $id;
+        $this->templateExpenseId = $templateExpenseId;
         $this->showModalCreateRecurringPayment = true;
     }
 
@@ -315,7 +381,7 @@ class TemplateExpensesComponent extends Component
             throw $th;
         }
 
-        $this->dataRecurringPayment['templateExpenseId'] = $this->id;
+        $this->dataRecurringPayment['templateExpenseId'] = $this->templateExpenseId;
 
         $response = (new CreateRecurringPayment())->execute($this->dataRecurringPayment);
 
@@ -329,9 +395,9 @@ class TemplateExpensesComponent extends Component
         $this->showModalCreateRecurringPayment = false;
     }
 
-    public function editRecurringPayment(int $id):void
+    public function editRecurringPayment(int $templateExpenseId):void
     {
-        $recurringPayment = (new RecurringPaymentFinder())->execute($id);
+        $recurringPayment = (new RecurringPaymentFinder())->execute($templateExpenseId);
 
         $this->dataRecurringPayment = [
             'description' => $recurringPayment->description,
@@ -344,7 +410,7 @@ class TemplateExpensesComponent extends Component
             'frequencyId' => $recurringPayment->frequency_id,
         ];
 
-        $this->idRecurringPayment = $id;
+        $this->recurringPaymentId = $templateExpenseId;
         $this->createRegisterRecurringPayment = false;
         $this->showModalCreateRecurringPayment = true;
     }
@@ -357,7 +423,7 @@ class TemplateExpensesComponent extends Component
             throw $th;
         }
 
-        $response = (new UpdateRecurringPayment())->execute($this->idRecurringPayment, $this->dataRecurringPayment);
+        $response = (new UpdateRecurringPayment())->execute($this->recurringPaymentId, $this->dataRecurringPayment);
 
         if ($response['success']) {
             $this->showSuccess('Actualización de pago recurrente', $response['message'], 5000);
@@ -366,22 +432,22 @@ class TemplateExpensesComponent extends Component
             exit;
         }
 
-        $this->showRecurringPayments($this->id);
+        $this->showRecurringPayments($this->templateExpenseId);
         $this->showModalCreateRecurringPayment = false;
     }
 
-    public function deleteRecurringPayment(int $id):void
+    public function deleteRecurringPayment(int $templateExpenseId):void
     {
-        $recurringPayment = (new RecurringPaymentFinder())->execute($id);
+        $recurringPayment = (new RecurringPaymentFinder())->execute($templateExpenseId);
 
-        $this->idRecurringPayment = $id;
+        $this->recurringPaymentId = $templateExpenseId;
         $this->name = $recurringPayment->description;
         $this->showModalDeleteRecurringPayment = true;
     }
 
     public function destroyRecurringPayment(): void
     {
-        $response = (new DeleteRecurringPayment())->execute($this->idRecurringPayment);
+        $response = (new DeleteRecurringPayment())->execute($this->recurringPaymentId);
 
         if ($response['success']) {
             $this->showSuccess('Eliminación de pago recurrente', $response['message'], 5000);
@@ -389,7 +455,111 @@ class TemplateExpensesComponent extends Component
             $this->showError('Eliminación de pago recurrente', $response['message'], 5000);
             exit;
         }
-        $this->showRecurringPayments($this->id);
+        $this->showRecurringPayments($this->templateExpenseId);
         $this->showModalDeleteRecurringPayment = false;
     }
+    // END Recurring payments
+
+    //  START Expenses
+    public function showExpenses(int $templateExpenseId): void
+    {
+        $templateExpense = (new TemplateExpenseFinder())->execute($templateExpenseId);
+
+        $this->expenses = $templateExpense->expenses;
+        $this->templateExpenseId = $templateExpenseId;
+        $this->name = $templateExpense->name;
+        $this->showModalShowExpenses = true;
+    }
+
+    public function createExpense(int $templateExpenseId):void
+    {
+        $this->resetFields();
+        $this->templateExpenseId = $templateExpenseId;
+        $this->showModalCreateExpense = true;
+    }
+
+    public function storeExpense():void
+    {
+        try {
+            $this->validateExpense();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+        $this->dataExpense['templateExpenseId'] = $this->templateExpenseId;
+
+        $response = (new CreateExpense())->execute($this->dataExpense);
+
+        if ($response['success']) {
+            $this->showSuccess('Registro de gasto', $response['message'], 5000);
+        }else{
+            $this->showError('Registro de gasto', $response['message'], 5000);
+            exit;
+        }
+
+        $this->showModalCreateExpense = false;
+    }
+
+    public function editExpense(int $expenseId):void
+    {
+        $expense = (new ExpenseFinder())->execute($expenseId);
+
+        $this->dataExpense = [
+            'description' => $expense->description,
+            'amount' => number_format($expense->amount, 0, ',', '.'),
+            'paymentDate' => $expense->payment_date->format('Y-m-d'),
+            'categoryId' => $expense->category_id,
+            'recurringPaymentId' => $expense->recurring_payment_id
+        ];
+
+        $this->expenseId = $expenseId;
+        $this->disabledInputExpense = true;
+        $this->createRegisterExpense = false;
+        $this->showModalCreateExpense = true;
+    }
+
+    public function updateExpense():void
+    {
+        try {
+            $this->validateExpense();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+        $response = (new UpdateExpense())->execute($this->expenseId, $this->dataExpense);
+
+        if ($response['success']) {
+            $this->showSuccess('Actualización de gasto', $response['message'], 5000);
+        }else{
+            $this->showError('Actualización de gasto', $response['message'], 5000);
+            exit;
+        }
+
+        $this->showExpenses($this->expenseId);
+        $this->showModalCreateExpense = false;
+    }
+
+    public function deleteExpense(int $expenseId):void
+    {
+        $expense = (new ExpenseFinder())->execute($expenseId);
+
+        $this->expenseId = $expenseId;
+        $this->name = $expense->description;
+        $this->showModalDeleteExpense = true;
+    }
+
+    public function destroyExpense(): void
+    {
+        $response = (new DeleteExpense())->execute($this->expenseId);
+
+        if ($response['success']) {
+            $this->showSuccess('Eliminación de pago recurrente', $response['message'], 5000);
+        }else{
+            $this->showError('Eliminación de pago recurrente', $response['message'], 5000);
+            exit;
+        }
+        $this->showExpenses($this->expenseId);
+        $this->showModalDeleteExpense = false;
+    }
+    // END Expenses
 }

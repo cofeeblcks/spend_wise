@@ -32,6 +32,10 @@ class RecurringPayment extends Model
         'status' => 'boolean',
     ];
 
+    protected $appends = [
+        'name'
+    ];
+
     public function templateExpense(): BelongsTo
     {
         return $this->belongsTo(TemplateExpense::class);
@@ -50,6 +54,11 @@ class RecurringPayment extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->description . ' - $' . number_format($this->amount, 0, ',', '.');
     }
 
     public function scopeFilter(Builder $builder, ?string $search)

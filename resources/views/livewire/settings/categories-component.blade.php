@@ -73,8 +73,12 @@
 
             <flux:textarea label="Descripción" placeholder="Arriendo" rows="auto" wire:model="basicData.description" />
 
-            <div class="flex">
+            <div class="flex gap-2">
                 <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancel</flux:button>
+                </flux:modal.close>
+
                 @if( $createRegister )
                     <flux:button wire:click="store" :loading="true" variant="primary">Guardar</flux:button>
                 @else
