@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\DashboardComponent;
 use App\Livewire\Settings\CategoriesComponent;
 use App\Livewire\TemplateExpensesComponent;
 use Illuminate\Support\Facades\Route;
@@ -9,7 +10,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
 
-Route::view('Panel', 'dashboard')
+Route::get('Panel', DashboardComponent::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

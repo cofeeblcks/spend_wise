@@ -4,6 +4,7 @@ namespace App\Actions\TemplateExpenses;
 
 use App\Models\TemplateExpense;
 use App\Traits\WithActionList;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 final class TemplateExpensesList
@@ -14,7 +15,8 @@ final class TemplateExpensesList
     {
         try {
             $templateExpenses = TemplateExpense::query()
-                ->filter($filter);
+                ->filter($filter)
+                ->where('user_id', Auth::user()->id);
 
             return [
                 'success' => true,
