@@ -175,9 +175,29 @@
                             <div class="flex items-center pl-3 cursor-pointer w-full hover:bg-accent/50 hover:rounded-lg py-1" x-data='{hasGroup: "{{ json_encode(!empty($groupName)) }}"}' x-on:click="check({{json_encode($item[$columnId])}})">
                                 <div class="flex justify-center items-center">
                                     @if ($multiple)
-                                        <input type="checkbox" readonly :checked="validateChecked({{json_encode($item[$columnId])}})" class="border-2 border-[#242424] rounded text-[#203A75] cursor-pointer focus:ring-0">
+                                        <div class="inline-flex items-center">
+                                            <label class="flex items-center cursor-pointer relative">
+                                                <input type="checkbox" readonly :checked="validateChecked({{json_encode($item[$columnId])}})" class="peer h-5 w-5 cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-accent checked:bg-accent checked:border-accent" />
+                                                <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                            </label>
+                                        </div>
                                     @else
-                                        <input value="{{json_encode($item[$columnId])}}" type="radio" readonly :checked="validateChecked({{json_encode($item[$columnId])}})" class="border-2 border-[#242424] rounded-full text-[#203A75] cursor-pointer focus:ring-0">
+                                        <div class="inline-flex items-center">
+                                            <label class="relative flex items-center cursor-pointer">
+                                                <input
+                                                    value="{{json_encode($item[$columnId])}}"
+                                                    readonly
+                                                    :checked="validateChecked({{json_encode($item[$columnId])}})"
+                                                    type="radio"
+                                                    class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-accent checked:border-accent transition-all"
+                                                />
+                                                <span class="absolute bg-accent w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></span>
+                                            </label>
+                                        </div>
                                     @endif
                                 </div>
                                 <label class="flex flex-row text-[#2A2A2A] text-[14px] cursor-pointer relative pl-2 pr-2 line-clamp-3 text-ellipsis @if($disabled) text-zinc-400 @endif" title="{{ preg_replace("/[\r\n|\n|\r]+/", PHP_EOL, $item[$columnName]) }}">
