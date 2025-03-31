@@ -121,7 +121,7 @@
 
         {{ $slot }}
 
-        <flux:footer>
+        <flux:footer class="bg-white">
             <div class="flex flex-col items-center justify-between py-3 px-8 mx-auto space-y-4 sm:space-y-0 sm:flex-row">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-2">
                     <x-app-logo-icon class="size-10 fill-current text-white dark:text-black" />

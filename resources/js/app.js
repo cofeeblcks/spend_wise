@@ -14,3 +14,9 @@ window.FullCalendar = {
     esLocale,
     bootstrap5Plugin,
 };
+
+import Chart from 'chart.js/auto';
+window.Chart = function(ctx, config) {
+    return new Chart(ctx, config);
+};
+Object.assign(window.Chart, Chart);

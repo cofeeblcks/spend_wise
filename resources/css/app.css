@@ -120,3 +120,7 @@ select:focus[data-flux-control] {
 .fc-highlight {
     @apply bg-blue-100;
 }
+
+.fc-daygrid-event-harness {
+    @apply my-1;
+}
