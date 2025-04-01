@@ -21,3 +21,8 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+# Cpanel
+php.ini
+error_log
+.ftpquota
+.htaccess
