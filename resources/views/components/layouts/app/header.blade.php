@@ -107,6 +107,16 @@
                     <flux:navlist.item icon="dollar-sign" :href="route('expenses')" :current="request()->routeIs('expenses')" wire:navigate>
                         {{ __('Expenses') }}
                     </flux:navlist.item>
+
+                    <flux:dropdown class="max-lg:hidden">
+                        <flux:navbar.item icon="settings-2" :current="request()->routeIs('settings.categories')" wire:navigate icon-trailing="chevron-down">
+                            {{ __('Settings') }}
+                        </flux:navbar.item>
+
+                        <flux:navmenu>
+                            <flux:navmenu.item :href="route('settings.categories')" >Categorias</flux:navmenu.item>
+                        </flux:navmenu>
+                    </flux:dropdown>
                 </flux:navlist.group>
             </flux:navlist>
 
