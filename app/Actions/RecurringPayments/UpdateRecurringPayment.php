@@ -42,6 +42,9 @@ final class UpdateRecurringPayment
                 if( Str::snake($key) == 'amount' ){
                     $value = str_replace('.', '', $value);
                 }
+                if( Str::snake($key) == 'end_date' ){
+                    $value = empty($value) ? null : $value;
+                }
                 $model->{Str::snake($key)} = is_string($value) ? trim($value) : $value;
             }
         }
