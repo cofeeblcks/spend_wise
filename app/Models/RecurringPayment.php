@@ -58,7 +58,7 @@ class RecurringPayment extends Model
 
     public function getNameAttribute(): string
     {
-        return $this->description . ' - $' . number_format($this->amount, 0, ',', '.');
+        return $this->description . ' - $ ' . number_format($this->amount, 0, ',', '.');
     }
 
     public function scopeFilter(Builder $builder, ?string $search)

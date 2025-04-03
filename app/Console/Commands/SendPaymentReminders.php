@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\RecurringPayments\RecurringPaymentsList;
-use App\Enums\OutputList;
-use App\Notifications\PaymentReminderNotification;
+use App\Actions\TemplateExpenses\TemplateExpensesList;
+use App\Mail\PaymentReminderEmail;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SendPaymentReminders extends Command
 {
@@ -33,26 +33,45 @@ class SendPaymentReminders extends Command
         $today = Carbon::now()->day;
         $tomorrow = Carbon::now()->addDay()->day;
 
-        $response = (new RecurringPaymentsList())->setParam('output', OutputList::BUILDER)->execute();
+        $response = (new TemplateExpensesList())->execute();
 
         if( $response['success'] ) {
-            $recurringPayments = $response['recurringPayments']->whereIn('payment_day', [$today, $tomorrow])->get();
+            $templateExpenses = $response['templateExpenses'];
 
-            if( $recurringPayments->count() > 0 ) {
+            if( $templateExpenses->count() > 0 ) {
                 $count = 0;
-                foreach ($recurringPayments as $payment) {
-                    try {
-                        // Determinar si es para hoy o mañana
-                        $dueType = $payment->payment_day == $today ? 'hoy' : 'mañana';
+                foreach ($templateExpenses as $templateExpense) {
+                    $recurringPayments = $templateExpense->recurringPayments()->whereIn('payment_day', [$today, $tomorrow])->get();
 
-                        // Enviar notificación al usuario asociado
-                        $payment->user->notify(new PaymentReminderNotification($payment, $dueType));
+                    if( $recurringPayments->count() > 0 ) {
+                        foreach ($recurringPayments as $recurringPayment) {
+                            try {
+                                // Determinar si es para hoy o mañana
+                                $dueType = $recurringPayment->payment_day == $today ? 'hoy' : 'mañana';
 
-                        $count++;
-                        $this->info("Recordatorio enviado para pago {$payment->name} (ID: {$payment->id})");
-                    } catch (\Exception $e) {
-                        $this->error("Error enviando recordatorio para pago {$payment->id}: {$e->getMessage()}");
-                        Log::channel('PaymentReminders')->error("Payment reminder failed for payment {$payment->id}: {$e->getMessage()}, File: {$e->getFile()}, Line: {$e->getLine()}");
+                                $subject = "Recordatorio de pago: {$recurringPayment->name} vence {$dueType}";
+                                $greeting = "Hola {$templateExpense->user->full_name},";
+                                $dataBody = [
+                                    "Este es un recordatorio sobre tu pago recurrente:",
+                                    "Concepto: {$recurringPayment->name}",
+                                    "Categoría: {$recurringPayment->category->name}",
+                                    "Vence: {$dueType} (día {$recurringPayment->payment_day} del mes)",
+                                    "break",
+                                    "¡Gracias por usar nuestro servicio!",
+                                ];
+
+                                Mail::to($templateExpense->user)
+                                ->send(
+                                    new PaymentReminderEmail($subject, $greeting, $dataBody)
+                                );
+
+                                $count++;
+                                $this->info("Recordatorio enviado para pago {$recurringPayment->name} (ID: {$recurringPayment->id})");
+                            } catch (\Exception $e) {
+                                $this->error("Error enviando recordatorio para pago {$recurringPayment->id}: {$e->getMessage()}");
+                                Log::channel('PaymentReminders')->error("Payment reminder failed for payment {$recurringPayment->id}: {$e->getMessage()}, File: {$e->getFile()}, Line: {$e->getLine()}");
+                            }
+                        }
                     }
                 }
 

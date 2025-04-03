@@ -9,5 +9,10 @@
             Email: {{ $user->email }}<br>
             Fecha de registro: {{ now()->format('d/m/Y H:i') }}
         </div>
+
+        <div class="email-section">
+            <h3 style="color: #203A75;">Comienza a explorar</h3>
+            <a class="email-button" href="{{ config('app.url') }}">Iniciar sesión</a>
+        </div>
     </x-slot>
 </x-layouts.email.base>

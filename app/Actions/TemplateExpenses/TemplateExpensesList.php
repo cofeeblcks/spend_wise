@@ -16,7 +16,9 @@ final class TemplateExpensesList
         try {
             $templateExpenses = TemplateExpense::query()
                 ->filter($filter)
-                ->where('user_id', Auth::user()->id);
+                ->when(Auth::user(), function($query){
+                    return $query->where('user_id', Auth::user()->id);
+                });
 
             return [
                 'success' => true,

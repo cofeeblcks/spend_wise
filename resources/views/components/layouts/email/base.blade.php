@@ -89,11 +89,6 @@
             {{ $body }}
         </div>
 
-        <div class="email-section">
-            <h3 style="color: #203A75;">Comienza a explorar</h3>
-            <a class="email-button" href="{{ config('app.url') }}">Iniciar sesión</a>
-        </div>
-
         <div class="email-footer">
             © 2025 {{ config('app.name') }}. Todos los derechos reservados.<br>
             <a href="mailto:{{ config('mail.support.address') }}">{{ config('mail.support.address') }}</a> |
