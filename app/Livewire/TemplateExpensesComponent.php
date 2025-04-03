@@ -407,7 +407,7 @@ class TemplateExpensesComponent extends Component
             'description' => $recurringPayment->description,
             'amount' => number_format($recurringPayment->amount, 0, ',', '.'),
             'startDate' => $recurringPayment->start_date->format('Y-m-d'),
-            'endDate' => $recurringPayment->end_date->format('Y-m-d'),
+            'endDate' => $recurringPayment->end_date?->format('Y-m-d'),
             'paymentDay' => $recurringPayment->payment_day,
             'totalInstallments' => $recurringPayment->total_installments,
             'categoryId' => $recurringPayment->category_id,

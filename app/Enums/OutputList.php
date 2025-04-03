@@ -7,4 +7,5 @@ enum OutputList: string
     case COLLECTION = 'collection';
     case PAGINATE = 'paginate';
     case ARRAY = 'array';
+    case BUILDER = 'builder';
 }

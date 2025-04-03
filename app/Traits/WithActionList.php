@@ -36,6 +36,9 @@ trait WithActionList
         $this->applyIdsFilter($builder);
         $this->applyOrderBy($builder);
         switch ($this->output) {
+            case OutputList::BUILDER:
+                $builder = $builder;
+                break;
             case OutputList::COLLECTION:
                 $builder = $builder->get();
                 break;
