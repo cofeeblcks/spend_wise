@@ -176,9 +176,9 @@ class TemplateExpensesComponent extends Component
             'dataRecurringPayment.description' => ['required', 'string', 'max:255'],
             'dataRecurringPayment.amount' => ['required', 'string'],
             'dataRecurringPayment.startDate' => ['required', 'date'],
-            'dataRecurringPayment.endDate' => ['required', 'date', 'after_or_equal:dataRecurringPayment.startDate'],
+            'dataRecurringPayment.endDate' => ['nullable', 'date', 'after_or_equal:dataRecurringPayment.startDate'],
             'dataRecurringPayment.paymentDay' => ['required', 'numeric', 'between:1,31'],
-            'dataRecurringPayment.totalInstallments' => ['required', 'numeric'],
+            'dataRecurringPayment.totalInstallments' => ['nullable', 'numeric'],
             'dataRecurringPayment.categoryId' => ['required', 'numeric', 'exists:categories,id'],
             'dataRecurringPayment.frequencyId' => ['required', 'numeric', 'exists:frequencies,id'],
         ]);
@@ -326,26 +326,30 @@ class TemplateExpensesComponent extends Component
 
     private function calculateTotalInstallments(): void
     {
-        switch ($this->dataRecurringPayment['frequencyId']) {
-            case FrequencyConstants::DAILY:
-                $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInDays($this->dataRecurringPayment['endDate']) + 1;
-                break;
+        if( !empty($this->dataRecurringPayment['endDate']) ){
+            switch ($this->dataRecurringPayment['frequencyId']) {
+                case FrequencyConstants::DAILY:
+                    $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInDays($this->dataRecurringPayment['endDate']) + 1;
+                    break;
 
-            case FrequencyConstants::WEEKLY:
-                $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInWeeks($this->dataRecurringPayment['endDate']);
-                break;
+                case FrequencyConstants::WEEKLY:
+                    $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInWeeks($this->dataRecurringPayment['endDate']);
+                    break;
 
-            case FrequencyConstants::BIWEEKLY:
-                $this->dataRecurringPayment['totalInstallments'] = floor(Carbon::parse($this->dataRecurringPayment['startDate'])->diffInDays($this->dataRecurringPayment['endDate']) / 15);
-                break;
+                case FrequencyConstants::BIWEEKLY:
+                    $this->dataRecurringPayment['totalInstallments'] = floor(Carbon::parse($this->dataRecurringPayment['startDate'])->diffInDays($this->dataRecurringPayment['endDate']) / 15);
+                    break;
 
-            case FrequencyConstants::MONTHLY:
-                $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInMonths($this->dataRecurringPayment['endDate']) + 1;
-                break;
+                case FrequencyConstants::MONTHLY:
+                    $this->dataRecurringPayment['totalInstallments'] = (int) Carbon::parse($this->dataRecurringPayment['startDate'])->diffInMonths($this->dataRecurringPayment['endDate']) + 1;
+                    break;
 
-            default:
-                $this->dataRecurringPayment['totalInstallments'] = null;
-                break;
+                default:
+                    $this->dataRecurringPayment['totalInstallments'] = null;
+                    break;
+            }
+        }else{
+            $this->dataRecurringPayment['totalInstallments'] = null;
         }
     }
 

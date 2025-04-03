@@ -244,9 +244,11 @@
                                             {{ $recurringPayment->description }}
                                         </td>
 
-                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap flex flex-col">
-                                            <flux:badge variant="pill" icon="calendar-arrow-up" as="button" color="green" class="my-1">{{ $recurringPayment->start_date->format('Y-m-d') }}</flux:badge>
-                                            <flux:badge variant="pill" icon="calendar-arrow-down" as="button" color="red" class="my-1">{{ $recurringPayment->end_date->format('Y-m-d') }}</flux:badge>
+                                        <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap @if( !empty($recurringPayment->end_date) ) flex flex-col @endif">
+                                            <flux:badge variant="pill" icon="calendar-arrow-up" as="button" color="green">{{ $recurringPayment->start_date->format('Y-m-d') }}</flux:badge>
+                                            @if( !empty($recurringPayment->end_date) )
+                                                <flux:badge variant="pill" icon="calendar-arrow-down" as="button" color="red" class="mt-2">{{ $recurringPayment->end_date->format('Y-m-d') }}</flux:badge>
+                                            @endif
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
@@ -258,7 +260,7 @@
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
-                                            {{ $recurringPayment->expenses->count() }}/{{ $recurringPayment->total_installments }}
+                                            {{ $recurringPayment->expenses->count() }} @if( !empty($recurringPayment->total_installments) ) /{{ $recurringPayment->total_installments }} @endif
                                         </td>
 
                                         <td class="px-12 py-4 text-sm text-center font-medium whitespace-nowrap">
